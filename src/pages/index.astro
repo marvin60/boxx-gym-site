@@ -1,17 +1,717 @@
 ---
+import Base from '../layouts/Base.astro';
+import CallToAction from '../components/CallToAction.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Booking from '../components/Booking.astro';
+import {
+  coach,
+  memberships,
+  billingLabel,
+  classCategories,
+  contact,
+  heroMedia,
+  freeTrial,
+  bookingHref,
+  bookingIsExternal,
+} from '../data/site';
 
+// Only real, confirmed numbers appear here. The bar hides itself when empty.
+const stats = [
+  coach.yearsCoaching && { value: `${coach.yearsCoaching}`, label: 'Years coaching' },
+  coach.fightersTrained && {
+    value: `${coach.fightersTrained}+`,
+    label: 'People trained',
+  },
+].filter(Boolean) as { value: string; label: string }[];
+
+// TODO: confirm this is how joining actually works at BOX-X, then adjust.
+// Deliberately written without promising a free trial or a specific response
+// time, since neither is confirmed.
+const steps = [
+  {
+    n: '01',
+    title: 'Book your free trial',
+    text: 'Reserve a free trial class online, or call if you\'d rather talk it through first.',
+  },
+  {
+    n: '02',
+    title: 'Come in and train',
+    text: 'See the gym, meet the coaches, and find out whether it\'s a fit before committing to anything.',
+  },
+  {
+    n: '03',
+    title: 'Pick your membership',
+    text: 'Unlimited classes, kids unlimited, or open gym only — whichever suits what you want out of it.',
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base
+  title="Boxing & Fitness"
+  description={`${coach.gymFull} — ${coach.tagline.toLowerCase()} at ${contact.address.line1}, ${contact.address.line2}. Adult classes, kids classes and one-on-one boxing training.`}
+>
+  <!-- ================= HERO ================= -->
+  <section class="hero">
+    <div class="hero__media">
+      {
+        heroMedia.src ? (
+          /*
+            No `autoplay` attribute on purpose — playback is started by script
+            only when the visitor hasn't asked for reduced motion. Until then
+            (and if JS is off, or the video fails) the poster frame shows, so
+            the hero always has an image behind the headline.
+          */
+          <video
+            class="hero__video"
+            poster={heroMedia.poster}
+            style={`object-position:${heroMedia.focalPoint}`}
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            aria-label={heroMedia.alt}
+          >
+            <source src={heroMedia.src} type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            class="hero__video"
+            src={heroMedia.poster}
+            style={`object-position:${heroMedia.focalPoint}`}
+            alt={heroMedia.alt}
+            fetchpriority="high"
+          />
+        )
+      }
+      <div class="hero__overlay" aria-hidden="true"></div>
+    </div>
+
+    <div class="container hero__inner">
+      <span class="eyebrow">
+        {contact.address.city}, {contact.address.state} &middot; Boxing &amp; Fitness
+      </span>
+      <p class="hero__cred">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+        {coach.credentialLine}
+      </p>
+
+      <h1 class="hero__title">{coach.heroHeadline}</h1>
+
+      {
+        coach.heroSub ? (
+          <p class="hero__sub">{coach.heroSub}</p>
+        ) : (
+          /* TODO: intro paragraph — see coach.heroSub in src/data/site.ts */
+          <p class="hero__sub">
+            Kids and adult boxing classes, one-on-one training, and open gym in
+            the heart of {contact.address.city}. Your first class is free.
+          </p>
+        )
+      }
+
+      <div class="btn-row">
+        <a
+          href={bookingHref}
+          class="btn btn--primary btn--xl"
+          target={bookingIsExternal ? '_blank' : undefined}
+          rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
+        >
+          {freeTrial.label}
+        </a>
+        <a href="/schedule" class="btn btn--ghost">Class Schedule</a>
+      </div>
+
+      <p class="hero__call">
+        Or call <a href={contact.phoneHref}>{contact.phone}</a>
+      </p>
+
+      {
+        stats.length > 0 && (
+          <ul class="stats">
+            {stats.map((s) => (
+              <li class="stat">
+                <span class="stat__value">{s.value}</span>
+                <span class="stat__label">{s.label}</span>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ================= INTRO ================= -->
+  <section class="section">
+    <div class="container intro">
+      <div data-reveal>
+        <span class="eyebrow">The gym</span>
+        <h2>{coach.tagline}</h2>
+        <!-- TODO: replace these two paragraphs with a real description of the
+             gym — its history, who trains there, what the atmosphere is like.
+             See "The coach's story" in CONTENT-NEEDED.md. -->
+        <p class="lead">
+          {coach.gymFull} is a boxing and fitness gym on Union Street in {
+            contact.address.city
+          }, offering adult classes, kids classes and one-on-one coaching.
+        </p>
+        <p>
+          Whether you've boxed before or have never thrown a punch, there's a way
+          in. Come by, take a look around, and see what fits.
+        </p>
+        <a href="/about" class="text-link">More about us &rarr;</a>
+      </div>
+
+      {
+        coach.credentials.length > 0 && (
+          <ul class="creds card" data-reveal>
+            <li class="creds__head">Credentials</li>
+            {coach.credentials.map((c) => (
+              <li class="creds__item">{c}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ================= MEMBERSHIPS ================= -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Pricing</span>
+        <h2>Memberships and session rates</h2>
+        <p class="lead">
+          Classes are split by age — Kids for 12 and under, Teens &amp; Adults for
+          13 and up.
+        </p>
+        <ul class="ages">
+          {
+            classCategories.map((c) => (
+              <li class={`age-pill cat-${c.slug}`}>
+                <strong>{c.name}</strong>
+                <span>{c.ages}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="grid grid--4">
+        {
+          memberships.map((m, i) => (
+            <article
+              class:list={[
+                'card service',
+                `service--${m.billing}`,
+                { 'service--featured': m.featured },
+              ]}
+              data-reveal
+              style={`transition-delay:${i * 80}ms`}
+            >
+              <div class="service__top">
+                <h3>{m.title}</h3>
+                {m.featured && <span class="tag tag--accent">Most popular</span>}
+              </div>
+              <span class={`service__billing service__billing--${m.billing}`}>
+                {billingLabel[m.billing]}
+              </span>
+              <p class="service__price">
+                {m.price} <span>{m.unit}</span>
+              </p>
+              {m.points.length > 0 && (
+                <ul class="ticks service__points">
+                  {m.points.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="btn-row center" data-reveal>
+        <a href="/training" class="btn btn--ghost">Full Pricing Details</a>
+        <a href="/schedule" class="btn btn--ghost">Class Schedule</a>
+      </div>
+    </div>
+  </section>
+
+  <Booking />
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head" data-reveal>
+        <span class="eyebrow">Getting started</span>
+        <h2>How to join</h2>
+      </div>
+
+      <ol class="grid grid--3 steps">
+        {
+          steps.map((s, i) => (
+            <li class="step" data-reveal style={`transition-delay:${i * 90}ms`}>
+              <span class="step__n">{s.n}</span>
+              <h3 class="step__title">{s.title}</h3>
+              <p class="step__text">{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <Testimonials />
+  <CallToAction />
+</Base>
+
+<script>
+  // Hero video playback.
+  // Autoplay is opt-in rather than declared in markup so that:
+  //   1. visitors with "reduce motion" set never get a moving background
+  //   2. the clip pauses when scrolled out of view instead of looping unseen
+  // If anything here fails, the poster frame remains — the hero still works.
+  const video = document.querySelector<HTMLVideoElement>('.hero__video');
+
+  if (video instanceof HTMLVideoElement) {
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const tryPlay = () => {
+      // play() rejects on some browsers/power-saving modes; the poster covers it.
+      video.play().catch(() => {});
+    };
+
+    const sync = () => {
+      if (motionQuery.matches) {
+        video.pause();
+        video.currentTime = 0;
+      } else {
+        tryPlay();
+      }
+    };
+
+    sync();
+    motionQuery.addEventListener('change', sync);
+
+    // Don't burn CPU/battery looping a video nobody can see.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (motionQuery.matches) return;
+            if (entry.isIntersecting) tryPlay();
+            else video.pause();
+          });
+        },
+        { threshold: 0.1 }
+      ).observe(video);
+    }
+  }
+</script>
+
+<style>
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: clamp(560px, 82vh, 780px);
+    padding-block: clamp(3rem, 8vw, 6rem);
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* The gradient sits on .hero__media itself, so it shows through if the
+     photo is missing or still loading. */
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        ellipse 70% 55% at 78% 18%,
+        rgba(255, 255, 255, 0.07),
+        transparent 62%
+      ),
+      radial-gradient(ellipse 90% 70% at 12% 92%, rgba(255, 255, 255, 0.04), transparent 60%),
+      linear-gradient(160deg, #1c1c1b 0%, #0d0d0d 55%, #141413 100%);
+  }
+
+  /* The source clips are vertical, so on a wide screen this crops hard.
+     object-position (set inline from heroMedia.focalPoint) decides what survives. */
+  .hero__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Dark overlay — keeps the headline readable over any photo.
+     Heaviest on the left where the text sits, lighter on the right so the
+     image still reads.
+
+     The stops are set for the worst case: a frame of video that blows out to
+     white behind the text. At 0.90 opacity over white the backdrop composites
+     to ~#2A2A2A, which still gives --text-muted 5.4:1. The 0.90 stop is held
+     out to 45% so the full width of .hero__sub (54ch) stays inside it. */
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(13, 13, 13, 0.95) 0%,
+        rgba(13, 13, 13, 0.9) 45%,
+        rgba(13, 13, 13, 0.6) 72%,
+        rgba(13, 13, 13, 0.75) 100%
+      ),
+      linear-gradient(180deg, rgba(13, 13, 13, 0.8) 0%, transparent 22%),
+      repeating-linear-gradient(
+        -60deg,
+        rgba(255, 255, 255, 0.02) 0 2px,
+        transparent 2px 14px
+      );
+  }
+
+  /* On narrow screens the text sits over the middle of the image, so the
+     overlay needs to be even across the whole width rather than side-weighted. */
+  @media (max-width: 700px) {
+    .hero__overlay {
+      /* The old 0.78 midpoint left --text-muted at 3.5:1 against a bright
+         frame — below AA. 0.88 brings it back to 5.0:1. */
+      background: linear-gradient(
+        180deg,
+        rgba(13, 13, 13, 0.92) 0%,
+        rgba(13, 13, 13, 0.88) 45%,
+        rgba(13, 13, 13, 0.92) 100%
+      );
+    }
+  }
+
+  .hero__call {
+    margin: 1.25rem 0 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .hero__call a {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.45);
+    transition: border-color 0.18s ease;
+  }
+
+  /* The link is already white, so hover has to move the underline rather than
+     the text colour. */
+  .hero__call a:hover {
+    border-bottom-color: #fff;
+  }
+
+  .hero__inner {
+    position: relative;
+  }
+
+  /* Credibility line — sits between the eyebrow and the headline */
+  .hero__cred {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1.1rem;
+    padding: 0.45rem 1rem 0.45rem 0.8rem;
+    border: 1px solid var(--line-bright);
+    border-radius: 100px;
+    background: rgba(13, 13, 13, 0.62);
+    backdrop-filter: blur(4px);
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .hero__cred svg {
+    width: 15px;
+    height: 15px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .hero__title {
+    max-width: 16ch;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero__sub {
+    max-width: 54ch;
+    font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    margin-top: clamp(3rem, 7vw, 4.5rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--line-bright);
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat__value {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .stat__label {
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 0.4rem;
+  }
+
+  /* ---------- Intro ---------- */
+  .intro {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  /* Falls back to a single column when there are no credentials to show */
+  .intro:has(> :only-child) {
+    grid-template-columns: 1fr;
+    max-width: 70ch;
+  }
+
+  @media (max-width: 860px) {
+    .intro {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .text-link {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-hot);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.18s ease;
+  }
+
+  .text-link:hover {
+    border-color: var(--accent-hot);
+  }
+
+  .creds__head {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .creds__item {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.94rem;
+    color: var(--text-muted);
+  }
+
+  .creds__item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 7px;
+    height: 7px;
+    background: var(--accent);
+    rotate: 45deg;
+  }
+
+  .creds__item:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ---------- Programs ---------- */
+  .service {
+    border-top: 3px solid var(--line-bright);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .service:hover {
+    border-top-color: var(--accent);
+    transform: translateY(-3px);
+  }
+
+  .service--featured {
+    border-top-color: var(--accent);
+  }
+
+  .service__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .service__top h3 {
+    margin-bottom: 0;
+  }
+
+  /* Per-session pricing must not be mistaken for a monthly membership — see
+     the note on `billing` in src/data/site.ts. The palette is monochrome, so
+     the distinction is carried by value and fill weight (white on a filled
+     pill vs. muted grey on bare) rather than by hue. */
+  .service--session {
+    --bill: #fff;
+    border-top-color: #fff;
+  }
+
+  .service--monthly {
+    --bill: var(--text-muted);
+  }
+
+  .service__billing {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.22rem 0.6rem;
+    border: 1px solid currentColor;
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bill);
+  }
+
+  .service__billing--session {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .service__price {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin: 0.6rem 0 0.75rem;
+  }
+
+  .service__price span {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bill);
+  }
+
+  .service__points {
+    margin: 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Category treatments — kept in sync with the schedule and training pages.
+     Monochrome, so the two categories separate by value, not hue: kids reads
+     bright/white, teens & adults reads muted grey. */
+  .cat-kids {
+    --cat: #ffffff;
+    --cat-bg: rgba(255, 255, 255, 0.12);
+    --cat-border: rgba(255, 255, 255, 0.55);
+  }
+
+  .cat-teens-adults {
+    --cat: #9a9a96;
+    --cat-bg: rgba(255, 255, 255, 0.04);
+    --cat-border: rgba(255, 255, 255, 0.22);
+  }
+
+  .ages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .age-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--cat-border);
+    border-left: 3px solid var(--cat);
+    border-radius: var(--radius);
+    background: var(--cat-bg);
+  }
+
+  .age-pill strong {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cat);
+  }
+
+  .age-pill span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .center {
+    justify-content: center;
+    margin-top: 2.5rem;
+  }
+
+  /* ---------- Steps ---------- */
+  .step {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-bright);
+  }
+
+  .step__n {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--accent-hot);
+    margin-bottom: 0.75rem;
+  }
+
+  .step__title {
+    margin-bottom: 0.5rem;
+  }
+
+  .step__text {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+</style>

@@ -1,0 +1,504 @@
+---
+import Base from '../layouts/Base.astro';
+import Booking from '../components/Booking.astro';
+import { contact, coach, programs, openGymHours } from '../data/site';
+
+/**
+ * THE ENQUIRY FORM
+ * This site is static, so the form posts to Web3Forms — endpoint and access
+ * key live in `contact` in src/data/site.ts.
+ *
+ * Submission is handled inline with fetch() rather than a native POST, so the
+ * visitor never leaves the page and never sees the Web3Forms success screen.
+ * That means no `redirect` field: Web3Forms only returns JSON when the request
+ * looks like AJAX, and setting `redirect` would override that.
+ *
+ * The <form> keeps its real action/method, so if JavaScript fails to load the
+ * browser still submits it natively. That path leaves the site (it lands on
+ * the Web3Forms thank-you page), but a working fallback beats a dead button.
+ */
+const interests = [...programs, 'Open Gym', 'Not sure yet — just want a chat'];
+---
+
+<Base
+  title="Contact & Booking"
+  description={`Contact ${coach.gymFull} in ${contact.address.city}, ${contact.address.state}. Call ${contact.phone}, email ${contact.email}, or send a message about classes and training.`}
+>
+  <section class="page-head">
+    <div class="container">
+      <span class="eyebrow">Get in touch</span>
+      <h1>Start training with us</h1>
+      <p class="lead">
+        Send us a message about classes, pricing, or booking a session and we'll
+        get back to you. If you'd rather just call, the number's on the right.
+      </p>
+    </div>
+  </section>
+
+  <Booking />
+
+  <section class="section">
+    <div class="container contact-grid">
+      <!-- ---------- Form ---------- -->
+      <div class="form-wrap card" data-reveal>
+        <form
+          id="contact-form"
+          class="form"
+          method="POST"
+          action={contact.formAction}
+        >
+          <input type="hidden" name="access_key" value={contact.formAccessKey} />
+          <input
+            type="hidden"
+            name="subject"
+            value={`New enquiry from the ${coach.gym} website`}
+          />
+          <input type="hidden" name="from_name" value={`${coach.gym} website`} />
+
+          <div class="field">
+            <label for="name">Your name <span aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" required autocomplete="name" />
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="email">Email <span aria-hidden="true">*</span></label>
+              <input type="email" id="email" name="email" required autocomplete="email" />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="interest">What are you interested in?</label>
+            <select id="interest" name="interest">
+              {interests.map((i) => <option value={i}>{i}</option>)}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="experience">Experience level</label>
+            <select id="experience" name="experience">
+              <option value="Complete beginner">Complete beginner</option>
+              <option value="Some experience">Trained a bit before</option>
+              <option value="Experienced">Experienced</option>
+              <option value="Competing">Competing / want to compete</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="message">Anything else I should know?</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              placeholder="Injuries, goals, which days suit you, questions — whatever's useful."
+            ></textarea>
+          </div>
+
+          <!-- Honeypot: bots fill this, humans never see it.
+               Named `botcheck` because that is the field Web3Forms drops
+               server-side. The old `_gotcha` name is Formspree's convention —
+               Web3Forms would have passed it through as an ordinary field, so
+               spam that bypassed our JS and posted straight to the API would
+               have landed in the inbox. -->
+          <div class="visually-hidden" aria-hidden="true">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="botcheck" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--block">
+            Send Message
+          </button>
+
+          <p class="form-note">
+            No spam, no mailing list. Your details are used to reply to you and
+            nothing else. Messages go to{' '}
+            <a href={`mailto:${contact.email}`} class="inline-link">{contact.email}</a>.
+          </p>
+
+          <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <!-- ---------- Details ---------- -->
+      <aside class="details" data-reveal>
+        <div class="detail-block">
+          <h2 class="detail-head">Call or email</h2>
+          <a href={contact.phoneHref} class="big-link">{contact.phone}</a>
+          <a href={`mailto:${contact.email}`} class="detail-link">{contact.email}</a>
+        </div>
+
+        <div class="detail-block">
+          <h2 class="detail-head">Where to find us</h2>
+          <address>
+            {contact.address.line1}<br />
+            {contact.address.neighborhood}<br />
+            {contact.address.line2}
+          </address>
+          <a
+            href={`https://maps.google.com/?q=${encodeURIComponent(
+              contact.address.mapsQuery
+            )}`}
+            class="detail-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Open in Google Maps &rarr;
+          </a>
+        </div>
+
+        <div class="detail-block">
+          <h2 class="detail-head">Open gym hours</h2>
+          <ul class="hours">
+            {
+              openGymHours.map((o) => (
+                <li>
+                  <span>{o.day}</span>
+                  <span class="hours__time">{o.hours}</span>
+                </li>
+              ))
+            }
+          </ul>
+          <p class="hours-note">
+            Classes run at set times within these hours — see the{' '}
+            <a href="/schedule" class="inline-link">class schedule</a>.
+          </p>
+        </div>
+
+        {
+          contact.socials.instagram && (
+            <div class="detail-block">
+              <h2 class="detail-head">Follow along</h2>
+              <a
+                href={contact.socials.instagram}
+                class="detail-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {contact.socials.instagramHandle} on Instagram &rarr;
+              </a>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ endpoint: contact.formAction, email: contact.email, phone: contact.phone }}>
+  const form = document.getElementById('contact-form');
+  const status = document.getElementById('form-status');
+  const submitBtn = form?.querySelector('button[type="submit"]');
+
+  if (form && status && submitBtn) {
+    const idleLabel = submitBtn.textContent;
+
+    const setStatus = (message, state) => {
+      status.textContent = message;
+      status.classList.remove('is-error', 'is-success');
+      if (state) status.classList.add(state);
+    };
+
+    // Anything we can't attribute to a specific cause falls back to this, so
+    // an enquiry is never lost with nowhere to go.
+    const failure = `Sorry — something went wrong sending that. Please email ${email} or call ${phone} and we'll get straight back to you.`;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = Object.fromEntries(new FormData(form));
+
+      // Belt and braces: Web3Forms drops `botcheck` server-side, but bail
+      // early so we don't show a bot a success message either way.
+      if (data.botcheck) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+      setStatus('Sending your message…');
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Web3Forms only answers with JSON when the request looks like
+            // AJAX; without this it replies with its own HTML page.
+            Accept: 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        // A non-2xx still carries a JSON body explaining why, so read it
+        // before deciding what to tell the visitor.
+        const result = await res.json().catch(() => null);
+
+        if (res.ok && result?.success) {
+          form.reset();
+          setStatus(
+            "Thanks — your message is on its way. We'll get back to you shortly, usually within a day.",
+            'is-success'
+          );
+          // The inputs are gone from the tab order intent-wise; move focus to
+          // the confirmation so screen readers land on it.
+          status.setAttribute('tabindex', '-1');
+          status.focus();
+        } else {
+          setStatus(result?.message ? `${result.message} ${failure}` : failure, 'is-error');
+        }
+      } catch {
+        // Network-level failure — offline, DNS, blocked request.
+        setStatus(failure, 'is-error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = idleLabel;
+      }
+    });
+  }
+</script>
+
+<style>
+  .page-head {
+    padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2rem, 4vw, 3rem);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 80%);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.85fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  @media (max-width: 860px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 520px) {
+    .field-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  label {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  label span {
+    color: var(--accent-hot);
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--line-bright);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.97rem;
+    transition: border-color 0.18s ease, background-color 0.18s ease;
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-color: var(--text-dim);
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--surface-2);
+  }
+
+  ::placeholder {
+    color: var(--text-dim);
+  }
+
+  select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+      linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 1.25rem, calc(100% - 14px) 1.25rem;
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 2.75rem;
+  }
+
+  .form-note {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+
+  .form-status {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  /* Success and failure can't be told apart by colour on a monochrome
+     palette, so they're separated three other ways: the wording itself, a
+     leading glyph, and fill vs. outline. Don't reduce this to a tint. */
+  .form-status.is-success,
+  .form-status.is-error {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius);
+    color: var(--text);
+  }
+
+  .form-status.is-success::before,
+  .form-status.is-error::before {
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .form-status.is-success {
+    border-left: 3px solid #fff;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .form-status.is-success::before {
+    content: '\2713'; /* ✓ */
+  }
+
+  .form-status.is-error {
+    border: 1px solid var(--text-muted);
+    border-left: 3px solid #fff;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .form-status.is-error::before {
+    content: '\2715'; /* ✕ */
+  }
+
+  .form-status:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  /* ---------- Details column ---------- */
+  .detail-block {
+    padding-bottom: 1.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .detail-block:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .detail-head {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 0.9rem;
+  }
+
+  .big-link {
+    display: block;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 1.9rem);
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    transition: color 0.18s ease;
+  }
+
+  .big-link:hover {
+    color: var(--accent-hot);
+  }
+
+  .detail-link {
+    display: inline-block;
+    color: var(--text-muted);
+    font-size: 0.94rem;
+    border-bottom: 1px solid transparent;
+    transition: color 0.18s ease, border-color 0.18s ease;
+  }
+
+  .detail-link:hover {
+    color: var(--accent-hot);
+    border-color: var(--accent-hot);
+  }
+
+  address {
+    font-style: normal;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .hours li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .hours li:last-child {
+    border-bottom: 0;
+  }
+
+  .hours__time {
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .hours-note {
+    margin: 0.9rem 0 0;
+    font-size: 0.84rem;
+    color: var(--text-dim);
+  }
+
+  .inline-link {
+    color: var(--accent-hot);
+  }
+
+  .inline-link:hover {
+    text-decoration: underline;
+  }
+</style>

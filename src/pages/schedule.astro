@@ -1,0 +1,526 @@
+---
+import Base from '../layouts/Base.astro';
+import CallToAction from '../components/CallToAction.astro';
+import Booking from '../components/Booking.astro';
+import {
+  schedule,
+  scheduleTimes,
+  classCategories,
+  openGymHours,
+  contact,
+  coach,
+} from '../data/site';
+
+/** Category name -> slug, for colour coding. */
+const slugFor = (name: string) =>
+  classCategories.find((c) => c.name === name)?.slug ?? '';
+
+/** Age range for a category, shown alongside every class label. */
+const agesFor = (name: string) =>
+  classCategories.find((c) => c.name === name)?.ages ?? '';
+
+/** Which days each category runs — derived, so it can never drift from the table. */
+const daysFor = (name: string) =>
+  schedule
+    .filter((d) => d.slots.some((s) => s.category === name))
+    .map((d) => d.day);
+
+const listDays = (days: string[]) =>
+  days.length > 1
+    ? `${days.slice(0, -1).join(', ')} and ${days[days.length - 1]}`
+    : days.join('');
+---
+
+<Base
+  title="Class Schedule"
+  description={`Weekly class schedule for ${coach.gymFull} in ${contact.address.city}, ${contact.address.state}. Kids classes (12 and under) and Teens & Adults classes (13 and up), plus open gym hours.`}
+>
+  <section class="page-head">
+    <div class="container">
+      <span class="eyebrow">Timetable</span>
+      <h1>Weekly class schedule</h1>
+      <p class="lead">
+        Two class categories, split by age. Check the age range before booking so
+        you know which class you or your child belongs in.
+      </p>
+
+      <ul class="legend">
+        {
+          classCategories.map((c) => (
+            <li class={`legend__item cat-${c.slug}`}>
+              <span class="legend__name">{c.name}</span>
+              <span class="legend__ages">{c.ages}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <!-- ============ DESKTOP: full-week table ============ -->
+      <div class="tt-wrap" data-reveal>
+        <table class="tt">
+          <caption class="visually-hidden">
+            Weekly class schedule by time and day
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col" class="tt__timehead">Time</th>
+              {
+                schedule.map((d) => (
+                  <th scope="col" class:list={['tt__day', { 'is-closed': d.slots.length === 0 }]}>
+                    {d.day}
+                  </th>
+                ))
+              }
+            </tr>
+          </thead>
+          <tbody>
+            {
+              scheduleTimes.map((time) => (
+                <tr>
+                  <th scope="row" class="tt__time">
+                    {time}
+                  </th>
+                  {schedule.map((day) => {
+                    const slot = day.slots.find((s) => s.time === time);
+                    return (
+                      <td class="tt__cell">
+                        {slot ? (
+                          <span class={`chip cat-${slugFor(slot.category)}`}>
+                            <span class="chip__name">{slot.category}</span>
+                            <span class="chip__ages">{agesFor(slot.category)}</span>
+                          </span>
+                        ) : (
+                          <span class="tt__empty" aria-label="No class">
+                            &ndash;
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ============ MOBILE: stacked day cards ============ -->
+      <div class="days">
+        {
+          schedule.map((day, i) => (
+            <section
+              class:list={['day-card', { 'day-card--closed': day.slots.length === 0 }]}
+              data-reveal
+              style={`transition-delay:${i * 40}ms`}
+            >
+              <h2 class="day-card__name">{day.day}</h2>
+              {day.slots.length > 0 ? (
+                <ul class="day-card__slots">
+                  {day.slots.map((slot) => (
+                    <li class={`day-slot cat-${slugFor(slot.category)}`}>
+                      <span class="day-slot__time">{slot.time}</span>
+                      <span class="day-slot__cat">{slot.category}</span>
+                      <span class="day-slot__ages">{agesFor(slot.category)}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="day-card__closed">No classes</p>
+              )}
+            </section>
+          ))
+        }
+      </div>
+
+      <!-- ============ Category summary ============ -->
+      <div class="cat-notes" data-reveal>
+        {
+          classCategories.map((c) => (
+            <p class={`cat-note cat-${c.slug}`}>
+              <strong>{c.name}</strong> <span class="cat-note__ages">({c.ages})</span>
+              {' — '}
+              {listDays(daysFor(c.name))}.
+            </p>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Primary call to action, repeated directly after the schedule -->
+  <Booking />
+
+  <!-- ============ Open gym ============ -->
+  <section class="section section--alt section--tight">
+    <div class="container opengym">
+      <div data-reveal>
+        <span class="eyebrow">Open gym</span>
+        <h2>Train on your own time</h2>
+        <p class="lead">
+          Open gym runs far longer than the class schedule. Included with the
+          Unlimited Membership, or available on its own.
+        </p>
+        <a href="/training" class="text-link">See membership options &rarr;</a>
+      </div>
+
+      <ul class="hours card" data-reveal>
+        {
+          openGymHours.map((o) => (
+            <li>
+              <span class="hours__day">{o.day}</span>
+              <span class="hours__time">{o.hours}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <CallToAction
+    heading="Not sure which class to start with?"
+    text={`Call ${contact.phone} or send us a message and we'll point you at the right one.`}
+  />
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2rem, 4vw, 3rem);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 80%);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* ---------- Category treatments ----------
+     Kids is the minority of sessions, so it gets the brighter treatment —
+     parents scanning the table should find it immediately. The palette is
+     monochrome, so that means white at full strength against a muted grey,
+     backed by the filled/bare distinction on the pill. */
+  .cat-kids {
+    --cat: #ffffff;
+    --cat-bg: rgba(255, 255, 255, 0.12);
+    --cat-border: rgba(255, 255, 255, 0.55);
+  }
+
+  .cat-teens-adults {
+    --cat: #9a9a96;
+    --cat-bg: rgba(255, 255, 255, 0.04);
+    --cat-border: rgba(255, 255, 255, 0.22);
+  }
+
+  /* ---------- Legend ---------- */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .legend__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--cat-border);
+    border-left: 3px solid var(--cat);
+    border-radius: var(--radius);
+    background: var(--cat-bg);
+  }
+
+  .legend__name {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cat);
+  }
+
+  .legend__ages {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* ---------- Table (desktop) ---------- */
+  .tt-wrap {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .tt-wrap {
+      display: block;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+  }
+
+  .tt {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  .tt__timehead,
+  .tt__day {
+    padding: 1rem 0.6rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line-bright);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .tt__timehead {
+    width: 148px;
+    text-align: left;
+    padding-left: 1.25rem;
+  }
+
+  .tt__day.is-closed {
+    color: var(--text-dim);
+  }
+
+  .tt__time {
+    padding: 0.9rem 1.25rem;
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    background: var(--surface);
+    border-right: 1px solid var(--line);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .tt tbody tr:not(:last-child) .tt__time,
+  .tt tbody tr:not(:last-child) .tt__cell {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .tt__cell {
+    padding: 0.5rem;
+    text-align: center;
+    background: var(--surface-2);
+    vertical-align: middle;
+  }
+
+  .chip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.55rem 0.5rem;
+    border: 1px solid var(--cat-border);
+    border-left: 3px solid var(--cat);
+    border-radius: var(--radius);
+    background: var(--cat-bg);
+    text-align: left;
+  }
+
+  .chip__name {
+    font-family: var(--font-display);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--cat);
+    line-height: 1.2;
+  }
+
+  .chip__ages {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.3;
+  }
+
+  .tt__empty {
+    color: var(--line-bright);
+    font-size: 1rem;
+  }
+
+  /* ---------- Day cards (mobile) ---------- */
+  .days {
+    display: grid;
+    gap: 1rem;
+  }
+
+  @media (min-width: 900px) {
+    .days {
+      display: none;
+    }
+  }
+
+  .day-card {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+
+  .day-card--closed {
+    background: var(--surface);
+    opacity: 0.7;
+  }
+
+  .day-card__name {
+    font-size: 1.15rem;
+    margin: 0 0 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .day-card--closed .day-card__name {
+    margin-bottom: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .day-card__slots {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  /* Flex + wrap rather than a fixed 2-column grid: on a narrow phone the
+     category badge drops to its own line instead of squeezing the time
+     into a wrap. Nothing here has a fixed width, so it cannot overflow. */
+  .day-slot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.2rem 0.75rem;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--cat-border);
+    border-left: 3px solid var(--cat);
+    border-radius: var(--radius);
+    background: var(--cat-bg);
+  }
+
+  .day-slot__time {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .day-slot__cat {
+    margin-left: auto;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cat);
+  }
+
+  /* Always on its own line, under the time and category */
+  .day-slot__ages {
+    flex: 1 0 100%;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+
+  .day-card__closed {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: 0.92rem;
+  }
+
+  /* ---------- Category summary ---------- */
+  .cat-notes {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .cat-note {
+    margin: 0;
+    padding-left: 0.9rem;
+    border-left: 3px solid var(--cat);
+    color: var(--text-muted);
+    font-size: 0.94rem;
+  }
+
+  .cat-note strong {
+    color: var(--cat);
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .cat-note__ages {
+    color: var(--text-dim);
+  }
+
+  /* ---------- Open gym ---------- */
+  .opengym {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  @media (max-width: 800px) {
+    .opengym {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .hours li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px dashed var(--line-bright);
+  }
+
+  .hours li:first-child {
+    padding-top: 0;
+  }
+
+  .hours li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .hours__day {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hours__time {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .text-link {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-hot);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.18s ease;
+  }
+
+  .text-link:hover {
+    border-color: var(--accent-hot);
+  }
+</style>

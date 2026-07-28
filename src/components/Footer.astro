@@ -1,0 +1,173 @@
+---
+import { coach, contact, nav } from '../data/site';
+
+const year = new Date().getFullYear();
+// Only these keys hold URLs — `instagramHandle` is display text, not a link.
+const socialKeys = ['instagram', 'facebook', 'youtube'] as const;
+const socials = socialKeys
+  .map((key) => [key, contact.socials[key]] as const)
+  .filter(([, url]) => url);
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <span class="brand__name">{coach.gymFull}</span>
+      <p class="footer-blurb">
+        Boxing and fitness in {contact.address.city}, {contact.address.state}.
+        Kids classes (12 and under), Teens &amp; Adults classes (13 and up), and
+        one-on-one training.
+      </p>
+      {
+        socials.length > 0 && (
+          <ul class="socials">
+            {socials.map(([label, url]) => (
+              <li>
+                <a href={url} class="social-link" rel="noopener noreferrer" target="_blank">
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <div>
+      <h4 class="footer-head">Site</h4>
+      <ul class="footer-list">
+        {nav.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </div>
+
+    <div>
+      <h4 class="footer-head">Find us</h4>
+      <address class="footer-address">
+        <strong>{contact.address.line1}</strong><br />
+        {contact.address.neighborhood}<br />
+        {contact.address.line2}
+      </address>
+      <ul class="footer-list">
+        <li><a href={contact.phoneHref}>{contact.phone}</a></li>
+        <li><a href={`mailto:${contact.email}`}>{contact.email}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>&copy; {year} {coach.gymFull}. All rights reserved.</p>
+    {/* Plain name here — "Coached by Coach Guy Ambroise" doubles the title. */}
+    {coach.name && <p>Coached by {coach.name}.</p>}
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  .footer-grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1.6fr 1fr 1.2fr;
+    padding-bottom: 3rem;
+  }
+
+  @media (max-width: 760px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .brand__name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .footer-blurb {
+    margin-top: 0.75rem;
+    max-width: 34ch;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+  }
+
+  .footer-head {
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+
+  .footer-list li {
+    margin-bottom: 0.55rem;
+  }
+
+  .footer-list a {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    transition: color 0.18s ease;
+  }
+
+  .footer-list a:hover {
+    color: var(--accent-hot);
+  }
+
+  .footer-address {
+    font-style: normal;
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+
+  .footer-address strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .socials {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .social-link {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--line-bright);
+    border-radius: 100px;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: border-color 0.18s ease, color 0.18s ease;
+  }
+
+  .social-link:hover {
+    border-color: var(--accent);
+    color: var(--accent-hot);
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+
+  .footer-bottom p {
+    margin: 0;
+  }
+</style>

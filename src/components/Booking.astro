@@ -1,0 +1,125 @@
+---
+import { booking, freeTrial, contact } from '../data/site';
+
+/**
+ * The booking section. Deliberately loud — this is the thing the page exists
+ * to get people to do.
+ *
+ * Two states:
+ *   1. booking.url is set  -> "book online through Vagaro" + big button
+ *   2. booking.url is ''   -> falls back to call/email, and does NOT claim
+ *                             online booking exists
+ * See the notes on `booking` in src/data/site.ts.
+ */
+const configured = Boolean(booking.url);
+---
+
+<section class="booking" id="book">
+  <div class="container booking__inner" data-reveal>
+    <span class="eyebrow">Booking</span>
+
+    {
+      configured ? (
+        <>
+          <h2 class="booking__title">{freeTrial.label}</h2>
+          <p class="booking__text">
+            All classes are booked online through {booking.provider} — new
+            students and existing members alike. Pick your class, reserve your
+            spot, and turn up.
+          </p>
+
+          <a
+            href={booking.url}
+            class="btn btn--primary btn--xl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {freeTrial.label}
+          </a>
+
+          <p class="booking__note">
+            Already a member? Use the same link to book, rebook, or refresh your
+            schedule.
+          </p>
+        </>
+      ) : (
+        <>
+          <h2 class="booking__title">{freeTrial.label}</h2>
+          <p class="booking__text">
+            Call or email to claim your free trial class and we'll get you booked
+            in. It takes a minute.
+          </p>
+
+          <div class="btn-row booking__btns">
+            <a href={contact.phoneHref} class="btn btn--primary btn--xl">
+              Call {contact.phone}
+            </a>
+            <a href={`mailto:${contact.email}`} class="btn btn--ghost btn--xl">
+              Email Us
+            </a>
+          </div>
+
+          {/*
+            Paste the Vagaro URL into `BOOKING_URL` in src/data/site.ts and this
+            block becomes the online-booking version automatically.
+          */}
+        </>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .booking {
+    position: relative;
+    background:
+      radial-gradient(ellipse 80% 90% at 50% 0%, rgba(255, 255, 255, 0.08), transparent 65%),
+      var(--surface);
+    border-block: 1px solid var(--line);
+    overflow: hidden;
+  }
+
+  .booking::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      -60deg,
+      rgba(255, 255, 255, 0.02) 0 2px,
+      transparent 2px 14px
+    );
+    pointer-events: none;
+  }
+
+  .booking__inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-block: clamp(3.5rem, 8vw, 6rem);
+  }
+
+  .booking__title {
+    max-width: 18ch;
+    margin-bottom: 1rem;
+  }
+
+  .booking__text {
+    max-width: 52ch;
+    font-size: clamp(1.02rem, 1.6vw, 1.15rem);
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+  }
+
+  .booking__btns {
+    justify-content: center;
+  }
+
+  .booking__note {
+    margin: 1.5rem 0 0;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+    max-width: 46ch;
+  }
+</style>

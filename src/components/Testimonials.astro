@@ -1,0 +1,77 @@
+---
+import { testimonials } from '../data/site';
+---
+
+{/* Hidden entirely until there are real, permissioned reviews to show. */}
+{testimonials.length > 0 && (
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="eyebrow">In their words</span>
+      <h2>People who walked in nervous</h2>
+      <p class="lead">
+        Every one of these started somewhere on the beginner end of the room.
+      </p>
+    </div>
+
+    <div class="grid grid--3">
+      {
+        testimonials.map((t, i) => (
+          <figure class="card quote" data-reveal style={`transition-delay:${i * 90}ms`}>
+            <blockquote class="quote__text">{t.quote}</blockquote>
+            <figcaption class="quote__by">
+              <span class="quote__name">{t.name}</span>
+              <span class="quote__detail">{t.detail}</span>
+            </figcaption>
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</section>
+)}
+
+<style>
+  .quote {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0;
+  }
+
+  .quote::before {
+    content: '\201C';
+    display: block;
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    line-height: 0.8;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .quote__text {
+    margin: 0 0 1.5rem;
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .quote__by {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .quote__name {
+    font-family: var(--font-display);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+  }
+
+  .quote__detail {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+  }
+</style>

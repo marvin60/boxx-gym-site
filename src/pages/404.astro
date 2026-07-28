@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base
+  title="Page Not Found"
+  description="That page doesn't exist — head back to the home page or check the timetable."
+>
+  <section class="notfound">
+    <div class="container">
+      <span class="eyebrow">Error 404</span>
+      <h1>You swung and missed</h1>
+      <p class="lead">
+        That page doesn't exist. Probably a bad link — try one of these instead.
+      </p>
+      <div class="btn-row">
+        <a href="/" class="btn btn--primary">Back to Home</a>
+        <a href="/schedule" class="btn btn--ghost">Class Timetable</a>
+        <a href="/contact" class="btn btn--ghost">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    display: flex;
+    align-items: center;
+    min-height: 70vh;
+    padding-block: clamp(4rem, 10vw, 8rem);
+    background: radial-gradient(
+      ellipse 60% 50% at 50% 0%,
+      rgba(255, 255, 255, 0.06),
+      transparent 70%
+    );
+  }
+</style>

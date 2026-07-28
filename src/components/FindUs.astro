@@ -1,0 +1,130 @@
+---
+import { contact, coach } from '../data/site';
+
+/**
+ * Address and contact block for the About page. This used to exist to warn
+ * visitors that BOX-X sat inside another business and had no sign of its own;
+ * now that there's storefront signage the street address stands on its own,
+ * so the block is just the address, phone and email.
+ */
+const { line1, neighborhood, line2, city, mapsQuery } = contact.address;
+---
+
+<section class="findus">
+  <div class="container findus__inner" data-reveal>
+    <div class="findus__text">
+      <span class="eyebrow">Where to find us</span>
+      <h2>Find the gym</h2>
+      <p>
+        {coach.gym} is at <strong>{line1}</strong>, in the{' '}
+        <strong>{neighborhood}</strong> neighborhood of {city}. Look for the{' '}
+        {coach.gym} sign out front.
+      </p>
+      <a
+        href={`https://maps.google.com/?q=${encodeURIComponent(mapsQuery)}`}
+        class="btn btn--ghost"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Open in Google Maps
+      </a>
+    </div>
+
+    <address class="findus__card card">
+      <span class="findus__label">Address</span>
+      <span class="findus__street">{line1}</span>
+      <span class="findus__line">{neighborhood}</span>
+      <span class="findus__line">{line2}</span>
+
+      <span class="findus__label findus__label--spaced">Phone</span>
+      <a href={contact.phoneHref} class="findus__link">{contact.phone}</a>
+
+      <span class="findus__label findus__label--spaced">Email</span>
+      <a href={`mailto:${contact.email}`} class="findus__link">{contact.email}</a>
+    </address>
+  </div>
+</section>
+
+<style>
+  .findus {
+    background: var(--surface);
+    border-block: 1px solid var(--line);
+  }
+
+  .findus__inner {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-block: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  @media (max-width: 820px) {
+    .findus__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .findus__text p {
+    color: var(--text-muted);
+    max-width: 56ch;
+    margin-bottom: 1.75rem;
+  }
+
+  .findus__text strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .findus__card {
+    display: flex;
+    flex-direction: column;
+    font-style: normal;
+    border-left: 3px solid var(--accent);
+  }
+
+  .findus__label {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.6rem;
+  }
+
+  .findus__label--spaced {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .findus__street {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+  }
+
+  .findus__line {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .findus__link {
+    color: var(--text);
+    font-size: 0.98rem;
+    border-bottom: 1px solid transparent;
+    transition: color 0.18s ease, border-color 0.18s ease;
+    align-self: flex-start;
+    word-break: break-word;
+  }
+
+  .findus__link:hover {
+    color: var(--accent-hot);
+    border-color: var(--accent-hot);
+  }
+</style>

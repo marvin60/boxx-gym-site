@@ -1,0 +1,541 @@
+---
+import Base from '../layouts/Base.astro';
+import CallToAction from '../components/CallToAction.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Booking from '../components/Booking.astro';
+import {
+  memberships,
+  billingLabel,
+  classCategories,
+  openGymHours,
+  faqs,
+  included,
+  coach,
+  contact,
+  bookingHref,
+  bookingIsExternal,
+} from '../data/site';
+---
+
+<Base
+  title="Memberships & Pricing"
+  description={`Pricing at ${coach.gymFull} in ${contact.address.city}, ${contact.address.state} — unlimited membership $119/mo, kids unlimited $99/mo, open gym $60/mo, one-on-one training $99 per session.`}
+>
+  <section class="page-head">
+    <div class="container">
+      <span class="eyebrow">Pricing</span>
+      <h1>Memberships and session rates</h1>
+      <p class="lead">
+        Three monthly memberships plus one-on-one training charged per session.
+        Classes are split by age — Kids for 12 and under, Teens &amp; Adults for
+        13 and up.
+      </p>
+
+      <ul class="ages">
+        {
+          classCategories.map((c) => (
+            <li class={`age-pill cat-${c.slug}`}>
+              <strong>{c.name}</strong>
+              <span>{c.ages}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="grid grid--4 svc-grid">
+        {
+          memberships.map((m, i) => (
+            <article
+              class:list={[
+                'card svc',
+                `svc--${m.billing}`,
+                { 'svc--featured': m.featured },
+              ]}
+              data-reveal
+              style={`transition-delay:${i * 80}ms`}
+            >
+              {m.featured && <span class="svc__flag">Most popular</span>}
+
+              <span class={`svc__billing svc__billing--${m.billing}`}>
+                {billingLabel[m.billing]}
+              </span>
+
+              <h2 class="svc__title">{m.title}</h2>
+
+              <p class="svc__price">
+                {m.price} <span>{m.unit}</span>
+              </p>
+
+              {/* TODO: a real description of each membership — see src/data/site.ts */}
+              {m.summary && <p class="svc__summary">{m.summary}</p>}
+
+              {m.points.length > 0 && (
+                <ul class="ticks svc__points">
+                  {m.points.map((p) => (
+                    <li>{p}</li>
+                  ))}
+                </ul>
+              )}
+
+              <a
+                href={bookingHref}
+                class:list={['btn', 'btn--block', m.featured ? 'btn--primary' : 'btn--ghost']}
+                target={bookingIsExternal ? '_blank' : undefined}
+                rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
+              >
+                Get Started
+              </a>
+            </article>
+          ))
+        }
+      </div>
+
+      <p class="also" data-reveal>
+        <strong>Heads up:</strong> Kids Unlimited is $99 <em>a month</em>. One-on-One
+        Training is $99 <em>a session</em>. Same number, different thing.
+      </p>
+
+      <p class="fineprint" data-reveal>
+        Questions about pricing or which membership fits? Call
+        <a href={contact.phoneHref} class="inline-link">{contact.phone}</a> or email
+        <a href={`mailto:${contact.email}`} class="inline-link">{contact.email}</a>.
+      </p>
+    </div>
+  </section>
+
+  <Booking />
+
+  <!-- ============ Open gym hours ============ -->
+  <section class="section section--alt section--tight">
+    <div class="container opengym">
+      <div data-reveal>
+        <span class="eyebrow">Open gym</span>
+        <h2>Open gym hours</h2>
+        <p class="lead">
+          Included with the Unlimited Membership, or available on its own for
+          $60 a month.
+        </p>
+        <a href="/schedule" class="text-link">See the class schedule &rarr;</a>
+      </div>
+
+      <ul class="hours card" data-reveal>
+        {
+          openGymHours.map((o) => (
+            <li>
+              <span class="hours__day">{o.day}</span>
+              <span class="hours__time">{o.hours}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {
+    included.length > 0 && (
+      <section class="section">
+        <div class="container included-wrap">
+          <div data-reveal>
+            <span class="eyebrow">No hidden extras</span>
+            <h2>What comes with every membership</h2>
+          </div>
+          <ul class="ticks included" data-reveal>
+            {included.map((i) => (
+              <li>{i}</li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    faqs.length > 0 && (
+      <section class="section">
+        <div class="container faq-wrap">
+          <div class="section-head" data-reveal>
+            <span class="eyebrow">Questions</span>
+            <h2>The things everyone asks first</h2>
+          </div>
+
+          <div class="faqs">
+            {faqs.map((f) => (
+              <details class="faq" data-reveal>
+                <summary class="faq__q">
+                  {f.q}
+                  <span class="faq__icon" aria-hidden="true" />
+                </summary>
+                <p class="faq__a">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <Testimonials />
+  <CallToAction />
+</Base>
+
+<style>
+  .page-head {
+    padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2rem, 4vw, 3rem);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 80%);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .page-head h1 {
+    max-width: 18ch;
+  }
+
+  /* Category treatments — kept in sync with the schedule and home pages.
+     Monochrome, so the two categories separate by value, not hue. */
+  .cat-kids {
+    --cat: #ffffff;
+    --cat-bg: rgba(255, 255, 255, 0.12);
+    --cat-border: rgba(255, 255, 255, 0.55);
+  }
+
+  .cat-teens-adults {
+    --cat: #9a9a96;
+    --cat-bg: rgba(255, 255, 255, 0.04);
+    --cat-border: rgba(255, 255, 255, 0.22);
+  }
+
+  .ages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .age-pill {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--cat-border);
+    border-left: 3px solid var(--cat);
+    border-radius: var(--radius);
+    background: var(--cat-bg);
+  }
+
+  .age-pill strong {
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cat);
+  }
+
+  .age-pill span {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .svc-grid {
+    gap: 1.5rem;
+  }
+
+  .svc {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-top: 3px solid var(--line-bright);
+  }
+
+  .svc--featured {
+    border-top-color: var(--accent);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 40%),
+      var(--surface-2);
+  }
+
+  .svc__flag {
+    position: absolute;
+    top: -3px;
+    right: clamp(1.5rem, 3vw, 2rem);
+    padding: 0.25rem 0.7rem;
+    background: #fff;
+    color: var(--bg);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* Per-session pricing must never read as a monthly membership at a glance.
+     With no hue available, the distinction is value plus fill: white on a
+     filled pill vs. muted grey on bare. */
+  .svc--session {
+    --bill: #fff;
+    border-top-color: #fff;
+  }
+
+  .svc--monthly {
+    --bill: var(--text-muted);
+  }
+
+  .svc__billing {
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    border: 1px solid currentColor;
+    border-radius: 100px;
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bill);
+  }
+
+  .svc__billing--session {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .svc__title {
+    font-size: clamp(1.2rem, 2vw, 1.45rem);
+    margin-bottom: 0.5rem;
+  }
+
+  .svc__price {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0 0 1.25rem;
+  }
+
+  /* The unit is the thing that distinguishes $99/mo from $99/session, so it
+     is deliberately not shrunk into illegibility. */
+  .svc__price span {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bill);
+  }
+
+  .svc__summary {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .svc__points {
+    margin: 0 0 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .svc .btn {
+    margin-top: auto;
+  }
+
+  .also {
+    margin-top: 2rem;
+    padding: 1rem 1.25rem;
+    border-left: 3px solid var(--text-muted);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .also strong {
+    color: var(--text);
+    font-family: var(--font-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+  }
+
+  .also em {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--text);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .fineprint {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 62ch;
+  }
+
+  /* ---------- Open gym ---------- */
+  .opengym {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  @media (max-width: 800px) {
+    .opengym {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .hours li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.9rem 0;
+    border-bottom: 1px dashed var(--line-bright);
+  }
+
+  .hours li:first-child {
+    padding-top: 0;
+  }
+
+  .hours li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .hours__day {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .hours__time {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .included-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+
+  @media (max-width: 800px) {
+    .included-wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .included li {
+    font-size: 1rem;
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .included li:last-child {
+    border-bottom: 0;
+  }
+
+  .faq-wrap {
+    max-width: 820px;
+  }
+
+  .faq {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.35rem 0;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 1.7vw, 1.15rem);
+    font-weight: 500;
+    list-style: none;
+    transition: color 0.18s ease;
+  }
+
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__q:hover {
+    color: var(--accent-hot);
+  }
+
+  .faq__icon {
+    position: relative;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+  }
+
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    background: var(--accent-hot);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .faq__icon::before {
+    top: 6px;
+    left: 0;
+    width: 14px;
+    height: 2px;
+  }
+
+  .faq__icon::after {
+    top: 0;
+    left: 6px;
+    width: 2px;
+    height: 14px;
+  }
+
+  .faq[open] .faq__icon::after {
+    transform: rotate(90deg);
+    opacity: 0;
+  }
+
+  .faq__a {
+    margin: 0;
+    padding-bottom: 1.5rem;
+    max-width: 68ch;
+    color: var(--text-muted);
+    font-size: 0.97rem;
+  }
+
+  .text-link {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-hot);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.18s ease;
+  }
+
+  .text-link:hover {
+    border-color: var(--accent-hot);
+  }
+
+  .inline-link {
+    color: var(--accent-hot);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.18s ease;
+  }
+
+  .inline-link:hover {
+    border-color: var(--accent-hot);
+  }
+</style>
