@@ -12,6 +12,7 @@ import {
   included,
   coach,
   contact,
+  bookingCta,
   bookingHref,
   bookingIsExternal,
 } from '../data/site';
@@ -87,12 +88,27 @@ import {
                 target={bookingIsExternal ? '_blank' : undefined}
                 rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
               >
-                Get Started
+                {bookingCta.label}
               </a>
             </article>
           ))
         }
       </div>
+
+      <!-- Free trial sits under the priced options, not above them -->
+      <p class="trial-note" data-reveal>
+        New to the gym?{' '}
+        <a
+          href={bookingHref}
+          class="inline-link"
+          target={bookingIsExternal ? '_blank' : undefined}
+          rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
+        >
+          {bookingCta.trialNote}
+        </a>{' '}
+        — book any class and come and try it before you sign up for a
+        membership.
+      </p>
 
       <p class="also" data-reveal>
         <strong>Heads up:</strong> Kids Unlimited is $99 <em>a month</em>. One-on-One
@@ -338,6 +354,13 @@ import {
 
   .svc .btn {
     margin-top: auto;
+  }
+
+  .trial-note {
+    margin-top: 1.75rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 62ch;
   }
 
   .also {

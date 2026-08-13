@@ -10,7 +10,7 @@ import {
   classCategories,
   contact,
   heroMedia,
-  freeTrial,
+  bookingCta,
   bookingHref,
   bookingIsExternal,
 } from '../data/site';
@@ -30,8 +30,8 @@ const stats = [
 const steps = [
   {
     n: '01',
-    title: 'Book your free trial',
-    text: 'Reserve a free trial class online, or call if you\'d rather talk it through first.',
+    title: 'Book a class',
+    text: 'Reserve your spot online, or call if you\'d rather talk it through first. Your first class is free.',
   },
   {
     n: '02',
@@ -114,7 +114,7 @@ const steps = [
           /* TODO: intro paragraph — see coach.heroSub in src/data/site.ts */
           <p class="hero__sub">
             Kids and adult boxing classes, one-on-one training, and open gym in
-            the heart of {contact.address.city}. Your first class is free.
+            the heart of {contact.address.city}.
           </p>
         )
       }
@@ -126,10 +126,22 @@ const steps = [
           target={bookingIsExternal ? '_blank' : undefined}
           rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
         >
-          {freeTrial.label}
+          {bookingCta.label}
         </a>
         <a href="/schedule" class="btn btn--ghost">Class Schedule</a>
       </div>
+
+      <!-- The free trial still gets said, just quietly and below the fold of
+           attention — same destination as the primary button. -->
+      <p class="hero__trial">
+        <a
+          href={bookingHref}
+          target={bookingIsExternal ? '_blank' : undefined}
+          rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
+        >
+          {bookingCta.trialNote}
+        </a> — new here? Start with a trial class.
+      </p>
 
       <p class="hero__call">
         Or call <a href={contact.phoneHref}>{contact.phone}</a>
@@ -398,8 +410,28 @@ const steps = [
     }
   }
 
+  /* Secondary to the booking button by size and weight, not by colour:
+     --text-muted is the dimmest token that still clears AA over the worst
+     case hero frame (5.4:1) — see the overlay note above. */
+  .hero__trial {
+    margin: 1.15rem 0 0;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+
+  .hero__trial a {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    transition: border-color 0.18s ease;
+  }
+
+  .hero__trial a:hover {
+    border-bottom-color: #fff;
+  }
+
   .hero__call {
-    margin: 1.25rem 0 0;
+    margin: 0.5rem 0 0;
     font-size: 0.95rem;
     color: var(--text-muted);
   }

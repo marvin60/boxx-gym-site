@@ -218,17 +218,26 @@ export const booking = {
   url: normalizeUrl(BOOKING_URL),
 };
 
-/** The primary call to action, used site-wide. */
-export const freeTrial = {
-  /** Full label — hero, booking section, call-to-action bands. */
-  label: 'Book Your Free Trial Class',
-  /** Compact label — header button, tight spaces. */
-  short: 'Free Trial',
+/**
+ * The primary call to action, used site-wide.
+ *
+ * Booking a (paid) class is the primary action everywhere — header button,
+ * hero, booking section, pricing cards, call-to-action bands. The free trial
+ * is still offered, but it is deliberately demoted to a secondary line
+ * underneath the primary button rather than being the loudest thing on the
+ * page. Both point at the same Vagaro link.
+ */
+export const bookingCta = {
+  /** Primary button label. Short enough to also work in the header. */
+  label: 'Book a Class',
+  /** Secondary line under the primary button — the free trial, kept quiet. */
+  trialNote: 'Your first class is free',
 };
 
 /**
- * Where a free-trial / booking button should point.
- * Vagaro when it's configured, the contact page until then.
+ * Where a booking button should point — including the free-trial links, which
+ * go to the same place. Vagaro when it's configured, the contact page until
+ * then.
  */
 export const bookingHref = booking.url || '/contact';
 /** External links need target/rel; internal ones must not have them. */

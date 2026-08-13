@@ -1,5 +1,5 @@
 ---
-import { booking, freeTrial, contact } from '../data/site';
+import { booking, bookingCta, contact } from '../data/site';
 
 /**
  * The booking section. Deliberately loud — this is the thing the page exists
@@ -21,7 +21,7 @@ const configured = Boolean(booking.url);
     {
       configured ? (
         <>
-          <h2 class="booking__title">{freeTrial.label}</h2>
+          <h2 class="booking__title">{bookingCta.label}</h2>
           <p class="booking__text">
             All classes are booked online through {booking.provider} — new
             students and existing members alike. Pick your class, reserve your
@@ -34,8 +34,17 @@ const configured = Boolean(booking.url);
             target="_blank"
             rel="noopener noreferrer"
           >
-            {freeTrial.label}
+            {bookingCta.label}
           </a>
+
+          {/* The free trial, kept as a quiet line under the button */}
+          <p class="booking__trial">
+            New here?{' '}
+            <a href={booking.url} target="_blank" rel="noopener noreferrer">
+              {bookingCta.trialNote}
+            </a>
+            .
+          </p>
 
           <p class="booking__note">
             Already a member? Use the same link to book, rebook, or refresh your
@@ -44,10 +53,10 @@ const configured = Boolean(booking.url);
         </>
       ) : (
         <>
-          <h2 class="booking__title">{freeTrial.label}</h2>
+          <h2 class="booking__title">{bookingCta.label}</h2>
           <p class="booking__text">
-            Call or email to claim your free trial class and we'll get you booked
-            in. It takes a minute.
+            Call or email and we'll get you booked in. It takes a minute — and
+            if you're new, your first class is free.
           </p>
 
           <div class="btn-row booking__btns">
@@ -116,8 +125,27 @@ const configured = Boolean(booking.url);
     justify-content: center;
   }
 
+  /* Reads as a footnote to the button above it — one step down in size and
+     colour, never a second competing call to action. */
+  .booking__trial {
+    margin: 1.15rem 0 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .booking__trial a {
+    color: var(--text);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    transition: border-color 0.18s ease;
+  }
+
+  .booking__trial a:hover {
+    border-bottom-color: #fff;
+  }
+
   .booking__note {
-    margin: 1.5rem 0 0;
+    margin: 0.9rem 0 0;
     font-size: 0.9rem;
     color: var(--text-dim);
     max-width: 46ch;

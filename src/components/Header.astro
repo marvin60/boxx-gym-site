@@ -3,7 +3,7 @@ import {
   nav,
   coach,
   contact,
-  freeTrial,
+  bookingCta,
   bookingHref,
   bookingIsExternal,
 } from '../data/site';
@@ -78,7 +78,7 @@ const isActive = (href: string) =>
         target={bookingIsExternal ? '_blank' : undefined}
         rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
       >
-        {freeTrial.short}
+        {bookingCta.label}
       </a>
 
       <!-- Repeated inside the mobile drawer, full label -->
@@ -191,6 +191,8 @@ const isActive = (href: string) =>
   .nav__cta {
     padding: 0.7rem 1.25rem;
     font-size: 0.8rem;
+    /* Two words at 0.13em tracking — must not wrap into the nav row */
+    white-space: nowrap;
   }
 
   /* ---------- Tap to call (mobile only) ---------- */

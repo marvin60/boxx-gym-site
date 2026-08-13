@@ -1,5 +1,5 @@
 ---
-import { contact, freeTrial, bookingHref, bookingIsExternal } from '../data/site';
+import { contact, bookingCta, bookingHref, bookingIsExternal } from '../data/site';
 
 interface Props {
   heading?: string;
@@ -7,8 +7,8 @@ interface Props {
 }
 
 const {
-  heading = 'Your first class is free',
-  text = 'Try a class before you commit to anything. Book online, or call and we\'ll sort it out for you.',
+  heading = 'Book your next class',
+  text = 'Reserve a spot online in a couple of minutes, or call and we\'ll sort it out for you. New here? Your first class is free.',
 } = Astro.props;
 ---
 
@@ -25,7 +25,7 @@ const {
         target={bookingIsExternal ? '_blank' : undefined}
         rel={bookingIsExternal ? 'noopener noreferrer' : undefined}
       >
-        {freeTrial.label}
+        {bookingCta.label}
       </a>
       <a href={contact.phoneHref} class="btn btn--ghost">Call {contact.phone}</a>
     </div>
