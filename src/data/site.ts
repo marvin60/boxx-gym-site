@@ -214,7 +214,7 @@ export const coachMedia = {
  * pricing cards and call-to-action band. All open in a new tab.
  */
 const BOOKING_URL =
-  'https://www.vagaro.com/Users/BusinessWidget.aspx?enc=MMLjhIwJMcwFQhXLL7ifVD9Cy2REnbv8AeYZSH4WAs%2B6Sw4tatRhhHHsXHe/bXHP7KzNmQgy/bYihgO2CQsfxgP6bubivrNFL0VLCwJ4Pm59SOJiLJ3zizqftIS2DIvWnYqf3DTMDi45dabqCYXrV0otFQLm%2Bx8sYiE3BkACV4wSzS0FvTTlb0qM%2BYKwhIibHXNOTz/w/Z7FkwDcJdcSiJ4xbTwfN8ZKfe/JOZWbTQI7gqhM%2B/zkDL7q4H%2B6VnmilJDFhE5ekvYCtAbGI8YUeSyZjdt/2cv/HTGBoGEhB6WUlfJ0313fneZjNcqzlXgcphec/zpJXDLkthmR8skvscWVM3iQPILvbYoTnxe//YRG%2BILjbdiESIn9c5OxYO6PxUPUZE2rAQaH1XonX5HgG//j0xnzqZHsNSUxvwCp0sBiyZcLD/u3prI26OLxRlG12pxujV3C8inHvot6HIka7w==';
+  'https://www.vagaro.com/Users/BusinessWidget.aspx?enc=MMLjhIwJMcwFQhXLL7ifVD9Cy2REnbv8AeYZSH4WAs%2B6Sw4tatRhhHHsXHe/bXHP7KzNmQgy/bYihgO2CQsfxgP6bubivrNFL0VLCwJ4Pm5S%2BmfLm6JnMIq4h5ViqgQcL8hQYL%2BXWR4aN%2BXZd4OXRDj8ackLCFUP0WLbShq8ZO7bSLdcecu4/inHeMiU5i8NIE43704VgpLSgMpY4atuv67nwY7m83GahsfzrYOcXxzv8foCnKSKb85x1xVKw3PkECLb3TAt9hpywHaarQfvxfy81QZpblBE1mDzd5lakl4mSlI67gfAU7o4T29SmYKi5GylRG5W8plzS%2BAYJuzeYWP2BWikZMpP7Sr3n%2BcUfQ8T2IaEwKS8OlUOyTUu0SgaX1zEIVva2fjYSfzBgCdkMID16m01378Y/yL8eaYaiLWKvnBlGrvxlKbAuCgMAxEnQFbLcSamfF8fdjg2GpdxcK4f9MjUEjLwEv/rRcV5CA9DMU9efTpkCNDAsO56ao1f';
 
 /** Tolerates a URL pasted without its protocol, which would otherwise resolve
  *  as a relative path and 404. */
