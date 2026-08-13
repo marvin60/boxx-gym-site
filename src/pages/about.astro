@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import CallToAction from '../components/CallToAction.astro';
 import FindUs from '../components/FindUs.astro';
-import { coach, contact, programs, coachPhoto } from '../data/site';
+import { coach, contact, programs, coachMedia } from '../data/site';
 
 /**
  * NOTE: this page previously contained an invented life story, career timeline
@@ -44,20 +44,53 @@ const values: { title: string; text: string }[] = [];
     <div class="container bio">
       <div class="bio__portrait" data-reveal>
         {
-          coachPhoto.src ? (
+          coachMedia.src ? (
+            /*
+              Two deliberate omissions here, both matching the hero video.
+
+              No `autoplay` attribute: playback is started by the script at the
+              bottom of this file, and only for visitors who haven't asked for
+              reduced motion. Declaring autoplay in the markup would start the
+              clip before any script could stop it.
+
+              `media` on the <source>, not `display: none` on the video: a
+              hidden video still gets downloaded. With the media query on the
+              source, a phone is never offered the file at all — the <video>
+              finds no usable resource and paints its poster instead. That
+              query is evaluated once, when the element loads, so a phone
+              rotated to landscape afterwards keeps the poster. That's the
+              intent, not a limitation to work around.
+
+              Either way the poster is on screen from the first paint, so the
+              slot is never blank — same if JS is off or the file 404s.
+            */
+            <video
+              class="portrait portrait--video"
+              poster={coachMedia.poster}
+              width={coachMedia.width}
+              height={coachMedia.height}
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              aria-label={coachMedia.alt}
+            >
+              <source src={coachMedia.src} type="video/mp4" media="(min-width: 768px)" />
+            </video>
+          ) : coachMedia.poster ? (
             <img
               class="portrait"
-              src={coachPhoto.src}
-              alt={coachPhoto.alt}
-              width={coachPhoto.width}
-              height={coachPhoto.height}
+              src={coachMedia.poster}
+              alt={coachMedia.alt}
+              width={coachMedia.width}
+              height={coachMedia.height}
               loading="lazy"
               decoding="async"
             />
           ) : (
             <div class="portrait-placeholder" role="img" aria-label="Photo coming soon">
               <span>BOX-X</span>
-              <small>Add photo at<br />public/images/coach.jpg</small>
+              <small>Add video at<br />public/images/coach-video.mp4</small>
             </div>
           )
         }
@@ -132,6 +165,51 @@ const values: { title: string; text: string }[] = [];
   />
 </Base>
 
+<script>
+  // Portrait clip playback — the same arrangement as the hero on the home page.
+  // Autoplay is opt-in rather than declared in markup so that:
+  //   1. visitors with "reduce motion" set never get a moving portrait
+  //   2. the clip pauses when scrolled out of view instead of looping unseen
+  // If anything here fails, the poster frame remains — the slot still works.
+  const video = document.querySelector<HTMLVideoElement>('.portrait--video');
+
+  if (video instanceof HTMLVideoElement) {
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const tryPlay = () => {
+      // Rejects on some browsers/power-saving modes, and on phones, where the
+      // <source> media query means there is nothing to play. The poster covers it.
+      video.play().catch(() => {});
+    };
+
+    const sync = () => {
+      if (motionQuery.matches) {
+        video.pause();
+        video.currentTime = 0;
+      } else {
+        tryPlay();
+      }
+    };
+
+    sync();
+    motionQuery.addEventListener('change', sync);
+
+    // Don't burn CPU/battery looping a video nobody can see.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (motionQuery.matches) return;
+            if (entry.isIntersecting) tryPlay();
+            else video.pause();
+          });
+        },
+        { threshold: 0.1 }
+      ).observe(video);
+    }
+  }
+</script>
+
 <style>
   .page-head {
     padding-block: clamp(3.5rem, 8vw, 6rem) clamp(2rem, 4vw, 3rem);
@@ -168,12 +246,25 @@ const values: { title: string; text: string }[] = [];
     }
   }
 
+  /* Shared by the video and by the still-image fallback, so the slot is the
+     same shape and size whichever one renders — and the same shape the coach
+     photo used before it. Both the clip and its poster are 720×1280, so
+     `contain` crops nothing; it's kept over `cover` because it can't quietly
+     crop a face out of a differently-shaped replacement file. */
   .portrait {
+    display: block;
     width: 100%;
+    /* `height: auto` is load-bearing, not tidying. The width/height attributes
+       on the <video> become a presentational hint of `height: 1280px`, which
+       outranks `aspect-ratio` and stretches the slot to 440x1280. An <img>
+       doesn't behave this way, which is why the photo that used to be here
+       never needed it. */
+    height: auto;
     aspect-ratio: 9 / 16;
     object-fit: contain;
     border: 1px solid var(--line-bright);
     border-radius: var(--radius);
+    background: var(--surface-2);
   }
 
   .portrait-placeholder {

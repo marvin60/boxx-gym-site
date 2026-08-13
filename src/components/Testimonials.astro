@@ -2,19 +2,25 @@
 import { testimonials } from '../data/site';
 ---
 
-{/* Hidden entirely until there are real, permissioned reviews to show. */}
+{/* Hidden entirely until there are real, permissioned reviews to show.
+
+    Plain .section, not .section--alt: on both pages that use this component
+    the preceding band is already --alt, and two in a row merge into one
+    undifferentiated block. */}
 {testimonials.length > 0 && (
-<section class="section section--alt">
+<section class="section">
   <div class="container">
     <div class="section-head" data-reveal>
-      <span class="eyebrow">In their words</span>
-      <h2>People who walked in nervous</h2>
+      <span class="eyebrow">Reviews</span>
+      <h2>What people say</h2>
       <p class="lead">
-        Every one of these started somewhere on the beginner end of the room.
+        Left by members on Google.
       </p>
     </div>
 
-    <div class="grid grid--3">
+    {/* 2 columns, not 3: these are full-paragraph quotes, and at 3-up the
+        cards get too narrow to read comfortably. */}
+    <div class="grid grid--2">
       {
         testimonials.map((t, i) => (
           <figure class="card quote" data-reveal style={`transition-delay:${i * 90}ms`}>

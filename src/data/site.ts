@@ -148,22 +148,33 @@ export const heroMedia = {
 };
 
 /**
- * Portrait on the About page.
+ * The looping clip in the portrait slot on the About page.
  *
- * This is now the head-and-shoulders shot of the coach on the mitts, which
- * replaced an earlier candid class photo. The previous one had a client
- * photographed from behind taking up the centre of the frame with the coach
- * cropped at the right edge — it read as a class snapshot rather than a
- * portrait, and put the client front and centre without a clear reason to.
+ * This replaced coach.jpg, the still portrait that used to sit here. The slot
+ * keeps the shape that photo had — 9:16 — and the clip and its poster are both
+ * 720×1280, so nothing is cropped either way.
  *
- * Set `src` to '' to go back to the lettered placeholder box.
+ * PHONES DON'T DOWNLOAD THE CLIP. It's 3.3 MB, too much to push at a phone for
+ * a decorative loop, so under 768px the browser is never offered the file and
+ * shows `poster` on its own. That's done with a `media` attribute on the
+ * <source> in about.astro — not by hiding the video in CSS, which downloads it
+ * anyway. Anyone with "reduce motion" turned on also gets the still poster.
+ *
+ * TO GO BACK TO A STILL IMAGE: set `src` to '' and the slot shows `poster` as
+ * a plain image at every width. Set `poster` to '' as well for the lettered
+ * placeholder box.
  */
-export const coachPhoto = {
-  src: '/images/coach.jpg',
-  width: 900,
-  height: 1600,
-  /** Describes what is actually in frame, not what we'd like to be in frame. */
-  alt: 'Coach Guy Ambroise in a black cap and t-shirt, holding up a pair of boxing mitts for a client mid-session at BOX-X',
+export const coachMedia = {
+  src: '/images/coach-video.mp4',
+  poster: '/images/coach-video-poster.jpg',
+  width: 720,
+  height: 1280,
+  /**
+   * Describes what is actually in frame, not what we'd like to be in frame —
+   * this is pad work with a second person in shot, not a portrait of the coach
+   * on his own, and the alt text has to say so.
+   */
+  alt: 'Boxing coach in a black cap holding up a punch mitt while a young boxer in a white and orange hoodie throws a punch, on the grey canvas at BOX-X, with the ring ropes and gym equipment behind them',
 };
 
 /* ==========================================================================
@@ -436,12 +447,46 @@ export const included: string[] = [];
 export type Testimonial = { quote: string; name: string; detail: string };
 
 /**
- * TODO: real reviews from real members, used with their permission.
- * Do not invent these — fabricated reviews violate FTC rules in the US.
- * Existing Google or Instagram comments can be reused if the person agrees.
- * The testimonials section hides itself entirely while this is empty.
+ * Real reviews only, quoted verbatim. Do not invent these and do not tidy up
+ * the wording — fabricated or materially altered testimonials violate FTC
+ * rules in the US. The section hides itself entirely while this is empty.
+ *
+ * Each quote is a contiguous excerpt of a longer review — no words changed,
+ * nothing reordered. Source: reviews.txt as supplied by the gym.
+ *
+ * Reviewers' own spellings are preserved: `Box x` (Nesken B.) and
+ * `Trainer Ambrose` (Kelly M., where the coach spells it Ambroise). Do not
+ * "correct" either.
+ *
+ * Joni G. was dropped: reviews.txt has no text for that review, and the only
+ * version to hand was Google's truncated preview.
  */
-export const testimonials: Testimonial[] = [];
+export const testimonials: Testimonial[] = [
+  {
+    quote:
+      "As a complete beginner, walking into a boxing gym can be intimidating, but Box-X made it very comfortable. From the moment I stepped in, I felt incredibly welcome. The coaches are phenomenal – patient, knowledgeable, and genuinely invested in helping you learn proper technique, even if you've never thrown a punch before.",
+    name: 'Gerson P.',
+    detail: 'Google review',
+  },
+  {
+    quote:
+      "He's never been so excited to do anything like this. Which says a lot about guy! The energy is great and he's so easy to communicate with! Gives my son tons of encouragement and cannot wait to see how much my son learns with him! Definitely recommend!",
+    name: 'Nicolle C.',
+    detail: 'Google review',
+  },
+  {
+    quote:
+      "Walking into this boxing gym was the best decisions ever. The energy, positivity, and sense of community were unmatched. The coach Trainer Ambrose is absolutely incredible not only extremely knowledgeable and motivating, but someone who genuinely cares about every single person who walks through the doors. You can tell this isn't just a job, it's a passion.",
+    name: 'Kelly M.',
+    detail: 'Google review',
+  },
+  {
+    quote:
+      'I recently checked out Box x and had an incredible experience! From the moment I walked in, the energy was high and the staff was super welcoming. The trainers are knowledgeable, motivating, and really know how to push you without making it feel overwhelming.',
+    name: 'Nesken B.',
+    detail: 'Google review',
+  },
+];
 
 export type FaqItem = { q: string; a: string };
 
